@@ -289,8 +289,7 @@ for(t in 1:length(total_reads_label)){
             # as we will have log2R=0 if it is normalized by its own bin counts
             refSamples[which_control] <- 'drop'
             
-            outfile_suffix <- paste0(study, "_", libPrep[i], "_",
-                                     total_reads_label[t], "_",
+            outfile_suffix <- paste0(total_reads_label[t], "_",
                                      binSize, "_control_",
                                      control, "_noMedianNorm")
             
