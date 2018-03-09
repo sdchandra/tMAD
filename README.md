@@ -13,13 +13,16 @@
 * For more information see https://github.com/sdchandra/CNAclinic
 
 ```R
+# Install annotation packages
+source("https://bioconductor.org/biocLite.R")
+biocLite(c("org.Hs.eg.db", "TxDb.Hsapiens.UCSC.hg19.knownGene", "TxDb.Hsapiens.UCSC.hg38.knownGene", "QDNAseq.hg19"))
 
-install.packages("devtools") 
+# Installing CNAclinic
+install.packages("devtools")
 library(devtools)
 
-install_github("sdchandra/CNAclinic", build_vignettes = TRUE))
+install_github("sdchandra/CNAclinic", build_vignettes = TRUE, dependencies=TRUE)
 library(CNAclinic)
-
 ```
 
 ## Downsample sWGS data to have e.g. 10 Million reads
