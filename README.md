@@ -24,6 +24,7 @@ library(devtools)
 
 install_github("sdchandra/CNAclinic", build_vignettes = TRUE, dependencies=TRUE)
 library(CNAclinic)
+
 ```
 
 ## Downsample sWGS data to have e.g. 10 Million reads
@@ -31,6 +32,8 @@ library(CNAclinic)
 * This step is necessary when samples within a cohort have different coverage
 * Downsampling read counts can be done using samtools within the R environment
 * samtools must be available in your PATH
+
+* NOTE: Size-select fragment lengths before downsampling
 
 ```R
 
