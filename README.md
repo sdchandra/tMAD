@@ -1,15 +1,16 @@
 ## Quantifying copy number aberration from shallow whole-genome sequencing 
 
 
-* This document contains R code necessary to reproduce analyses in the manuscript: Mouliere, Chandrananda, Piskorz and Moore et al. **Boosting non-invasive cancer genomics with fragment size analysis of plasma cell-free DNA** (Manuscript submitted). 
+* This document contains R code necessary to reproduce analyses in the manuscript: Mouliere, Chandrananda, Piskorz and Moore et al. **Enhanced detection of circulating tumor DNA by fragment size analysis** (Manuscript under review). 
 * The sections below explain how copy number aberration (CNA) was quantified from shallow whole-genome sequencing (sWGS, <0.5x) data generated from the Illumina HiSeq platform.
+
 
 
 ![Analysis workflow](/images/tMAD_figure.png)
 
 ## Install CNAclinic software
 
-*  CNAclinic is a bioinformatics pipeline in R that can facilitate end-to-end analysis of CNAs from sWGS (Manuscript under review).
+*  CNAclinic is a bioinformatics pipeline in R that can facilitate end-to-end analysis of CNAs from sWGS.
 * For more information see https://github.com/sdchandra/CNAclinic
 
 ```R
@@ -27,7 +28,8 @@ library(CNAclinic)
 
 ## Downsample sWGS data to have e.g. 10 Million reads
 
-* This can be done using samtools within the R environment
+* This step is necessary when samples within a cohort have different coverage
+* Downsampling read counts can be done using samtools within the R environment
 * samtools must be available in your PATH
 
 ```R
@@ -70,7 +72,7 @@ for(t in 1:length(total_reads_needed)){
         if(file.exists(bamfile)){
         
             # Get the read count total from BAM
-            command <- paste0("samtools view -c -q 20 ", bamfile)
+            command <- paste0("samtools view -c -q 20 -F 4 -F 2048 -F 256 -F 1024 ", bamfile)
             
             BAM_total <- as.numeric(system(command, intern=TRUE, wait=TRUE))
         
@@ -88,7 +90,7 @@ for(t in 1:length(total_reads_needed)){
                 command <- 
                     paste0("samtools view -s ", 
                            sampling_prop, 
-                           " -q 20 -b ", bamfile, " > ", 
+                           " -q 20 -F 4 -F 2048 -F 256 -F 1024 -b ", bamfile, " > ", 
                            downsample_dir, 
                            "/samp_", total_reads_label[t], "_", bamfiles[i])
                 
@@ -110,6 +112,8 @@ for(t in 1:length(total_reads_needed)){
 
 ## Create an empirical blacklist from control data
 
+* This step has to be done only once
+* It will save R objects corresponding to different genomic bin sizes which contains TRUE if each bin should be used in downstream analyses or FALSE if it should be blacklisted.
 
 ```R
 
@@ -120,9 +124,9 @@ library(CNAclinic)
 # Arguments to change
 ###########################################
 
-binSizes <- c(30) # Reads binned into 30 Kbp windows
-
 total_reads_needed <- 10000000
+
+binSizes <- c(30) # Reads binned into 30 Kbp windows
 
 downsample_dir <- "/path/to/sampled/bamfiles"
 
@@ -196,22 +200,38 @@ for(b in 1:length(binSizes)){
 
 ## Calculate t-MAD from test samples
 
-* creates a .csv file with t-MAD values per sample 
+* creates two .csv files with t-MAD values per sample 
+* The _control_none.csv file is the analyses run without a control (sample is median-normalized)
+* The second file is the analyses run with an external control or panel (we recommend this process)
 
 ```
 ###########################################
 # Arguments to change
 ###########################################
 
+# 1) Path to all your downsampled (sampl_10Million_***) BAM files
+
 downsample_dir <- "/path/to/sampled/bamfiles"
 
+# 2) What is the total read count expected
+ 
 total_reads_needed <- 10000000 
+
+# 3) Which genomic bin size should be used as resolution
 
 selected_binSize <- 30  
 
+# 4) Path to the control that should be used to normalise the samples 
+# This could be a single control, or a control made from a panel of controls
+# It needs to have the same total number of reads as the test samples
+
 downsampled_control <- "path/to/sampled/control/samp_10Million_XXX.bam"
 
+# 5) User defined name for the control used to normalise
+
 control_name <- "CONTROL_XXX"
+
+# 6) The path to blacklist created in the previous step
 
 path_to_blacklist <- "path/to/saved/blacklist"
 
@@ -260,8 +280,7 @@ for(t in 1:length(total_reads_label)){
         if(control == "none"){
             
             outfile_suffix <- paste0(total_reads_label[t], "_",
-                                     binSize, "_control_",
-                                     control, "_none")
+                                     binSize, "_control_none")
             
             processedData <- processForSegmentation(
                                 bamfiles=bamfiles,
@@ -294,7 +313,7 @@ for(t in 1:length(total_reads_label)){
             
             outfile_suffix <- paste0(total_reads_label[t], "_",
                                      binSize, "_control_",
-                                     control, "_noMedianNorm")
+                                     control)
             
             processedData <- processForSegmentation(cache=FALSE,
                                 bamfiles=bamfiles,
@@ -345,10 +364,3 @@ for(t in 1:length(total_reads_label)){
 }
 
 ```
-
-
-
-
- 
-
-
