@@ -1,7 +1,7 @@
 ## Quantifying copy number aberration from shallow whole-genome sequencing 
 
 
-* This document contains R code necessary to reproduce analyses in the manuscript: Mouliere, Chandrananda, Piskorz and Moore et al. **Enhanced detection of circulating tumor DNA by fragment size analysis**, Mouliere, Chandrananda,  Piskorz, Moore et al. Science Translational Medicine (2018). 
+* This document contains R code necessary to reproduce analyses in the manuscript: Mouliere, Chandrananda, Piskorz and Moore et al. **Enhanced detection of circulating tumor DNA by fragment size analysis** Science Translational Medicine (2018). 
 * The sections below explain how copy number aberration (CNA) was quantified from shallow whole-genome sequencing (sWGS, <0.5x) data generated from the Illumina HiSeq platform.
 
 
